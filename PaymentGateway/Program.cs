@@ -3,97 +3,138 @@ using PaymentGateway.Application.WriteOperations;
 using PaymentGateway.ExternalService;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.WritteSide;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using PaymentGateway.Application;
+using PaymentGateway.Application.ReadOperations;
 using System;
 using static PaymentGateway.PublishedLanguage.WritteSide.PurchaseProductCommand;
+using System.IO;
+using Microsoft.Extensions.Configuration;
+using PaymentGateway.Data;
 
 namespace PaymentGateway
 {
     class Program
     {
+        static IConfiguration Configuration;
         static void Main(string[] args)
         {
 
-            var db = Data.Database.GetInstance();
+            //var db = Database.GetInstance();
 
-            Account firstAccount = new Account();
-            firstAccount.Balance = 100;
+            //Account firstAccount = new Account();
+            //firstAccount.Balance = 100;
 
-            EnrollCustomerCommand client1 = new EnrollCustomerCommand();
-            client1.Name = "Ana";
-            client1.Currency = "Euro";
-            client1.UniqueIdentifier = "2950603567835";
-            client1.ClientType = "Individual";
-            client1.AccountType = "Debit";
+            //EnrollCustomerCommand client1 = new EnrollCustomerCommand();
+            //client1.Name = "Ana";
+            //client1.Currency = "Euro";
+            //client1.UniqueIdentifier = "2950603567835";
+            //client1.ClientType = "Individual";
+            //client1.AccountType = "Debit";
 
-            IEventSender eventSender = new EventSender();
+            //IEventSender eventSender = new EventSender();
 
-            EnrollCustomerOperation enrollOperation = new EnrollCustomerOperation(eventSender);
-            enrollOperation.PerformOperation(client1);
+            //EnrollCustomerOperation enrollOperation = new EnrollCustomerOperation(eventSender);
+            //enrollOperation.PerformOperation(client1);
 
-            CreateAccountCommand accountCommand = new CreateAccountCommand();
-            accountCommand.Balance = 45;
-            accountCommand.Currency = "$";
-            accountCommand.IbanCode = "ROING66434848993";
-            accountCommand.Type = "Economii";
-            accountCommand.Status = "activ";
-            accountCommand.Limit = 100000;
-            accountCommand.UniqueIdentifier = "2950603567835";
-            IEventSender eventSender1 = new EventSender();
-            CreateAccountOperation accountOperation = new CreateAccountOperation(eventSender1);
+            Configuration = new ConfigurationBuilder()
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+               .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true)
+               .AddEnvironmentVariables()
+               .Build();
+
+            // setup
+            var services = new ServiceCollection();
+            services.RegisterBusinessServices(Configuration);
+
+            services.AddSingleton<IEventSender, EventSender>();
+            services.AddSingleton(Configuration);
+
+            // build
+            var serviceProvider = services.BuildServiceProvider();
+
+            // use
+            var enrollCustomer = new EnrollCustomerCommand
+            {
+                ClientType = "Company",
+                AccountType = "Debit",
+                Name = "Gigi Popa",
+                Currency = "Eur",
+                UniqueIdentifier = "23"
+            };
+
+            var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
+            enrollCustomerOperation.PerformOperation(enrollCustomer);
+
+            ///////////
+            var accountCommand = new CreateAccountCommand {
+                Balance = 45,
+                Currency = "$",
+                IbanCode = "ROING66434848993",
+                Type = "Economii",
+                Status = "activ",
+                Limit = 100000,
+                UniqueIdentifier = "2950603567835"
+            };
+            var accountOperation = serviceProvider.GetRequiredService<CreateAccountOperation>();
             accountOperation.PerformOperation(accountCommand);
 
-            DepositMoneyCommand deposityMoneyCommand = new DepositMoneyCommand();
-            deposityMoneyCommand.Amount = 3000000;
-            deposityMoneyCommand.Currency = "$";
-            deposityMoneyCommand.DateOfOperation = DateTime.Now;
-            deposityMoneyCommand.DateOfTransaction = DateTime.Now;
-            deposityMoneyCommand.UniqueIdentifier = "2950603567835";
-            deposityMoneyCommand.IbanCode = "ROING66434848993";
-            IEventSender eventSender2 = new EventSender();
-            DepositMoneyOperation deposityMoneyOperation = new DepositMoneyOperation(eventSender2);
+            var deposityMoneyCommand = new DepositMoneyCommand {
+                Amount = 3000000,
+                Currency = "$",
+                DateOfOperation = DateTime.Now,
+                DateOfTransaction = DateTime.Now,
+                UniqueIdentifier = "2950603567835",
+                IbanCode = "ROING66434848993"
+            };
+            var deposityMoneyOperation = serviceProvider.GetRequiredService<DepositMoneyOperation>();
             deposityMoneyOperation.PerformOperation(deposityMoneyCommand);
 
 
-            WithdrawMoneyCommand withdrawMoneyCommand = new WithdrawMoneyCommand();
-            withdrawMoneyCommand.Amount = 200;
-            withdrawMoneyCommand.Currency = "$";
-            withdrawMoneyCommand.DateOfOperation = DateTime.Now;
-            withdrawMoneyCommand.DateOfTransaction = DateTime.Now;
-            withdrawMoneyCommand.UniqueIdentifier = "2950603567835";
-            withdrawMoneyCommand.IbanCode = "ROING66434848993";
-            IEventSender eventSender3 = new EventSender();
-            WithdrawMoneyOperation withdrawMoneyOperation = new WithdrawMoneyOperation(eventSender3);
+            var withdrawMoneyCommand = new WithdrawMoneyCommand {
+                Amount = 200,
+                Currency = "$",
+                DateOfOperation = DateTime.Now,
+                DateOfTransaction = DateTime.Now,
+                UniqueIdentifier = "2950603567835",
+                IbanCode = "ROING66434848993"
+            };
+            var withdrawMoneyOperation = serviceProvider.GetRequiredService<WithdrawMoneyOperation>();
             withdrawMoneyOperation.PerformOperation(withdrawMoneyCommand);
 
 
-            CreateProductCommand productCommand = new CreateProductCommand();
-            productCommand.ProductId = 1;
-            productCommand.Name = "Banana";
-            productCommand.Value = 50;
-            productCommand.Currency = "RON";
-            productCommand.Limit = 5;
-            CreateProductOperation createProductOperation = new CreateProductOperation(eventSender3);
+            var productCommand = new CreateProductCommand {
+                ProductId = 1,
+                Name = "Banana",
+                Value = 50,
+                Currency = "RON",
+                Limit = 5
+            };
+            var createProductOperation = serviceProvider.GetRequiredService<CreateProductOperation>();
             createProductOperation.PerformOperation(productCommand);
 
-            CreateProductCommand productCommand1 = new CreateProductCommand();
-            productCommand1.ProductId = 2;
-            productCommand1.Name = "Pere";
-            productCommand1.Value = 4;
-            productCommand1.Currency = "RON";
-            productCommand1.Limit = 9;
-            CreateProductOperation createProductOperation1 = new CreateProductOperation(eventSender3);
+            var productCommand1 = new CreateProductCommand {
+                ProductId = 2,
+                Name = "Pere",
+                Value = 4,
+                Currency = "RON",
+                Limit = 9
+            };
+            var createProductOperation1 = serviceProvider.GetRequiredService<CreateProductOperation>();
             createProductOperation1.PerformOperation(productCommand1);
 
-            PurchaseProductCommand purchaseProductCommand = new PurchaseProductCommand();
-            purchaseProductCommand.IbanCode = "ROING66434848993";
-            purchaseProductCommand.UniqueIdentifier = "2950603567835";
-            purchaseProductCommand.ProductDetails = new System.Collections.Generic.List<PurchaseProductDetail>
+            var purchaseProductCommand = new PurchaseProductCommand() {
+            IbanCode = "ROING66434848993",
+            UniqueIdentifier = "2950603567835",
+            ProductDetails = new System.Collections.Generic.List<PurchaseProductDetail>
             {
             new PurchaseProductDetail { ProductId =productCommand.ProductId , Quantity = 2 },
             new PurchaseProductDetail { ProductId = productCommand1.ProductId, Quantity = 6 }
-            };
-
-            PurchaseProductOperation purchaseProductOperation = new PurchaseProductOperation(eventSender);
+            },
+        };
+            var purchaseProductOperation = serviceProvider.GetRequiredService<PurchaseProductOperation>();
             purchaseProductOperation.PerformOperation(purchaseProductCommand);
         }
     }

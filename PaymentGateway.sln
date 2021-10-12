@@ -3,19 +3,28 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31727.386
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway", "PaymentGateway\PaymentGateway.csproj", "{9A52CC45-32D1-4C6F-8464-D99F2954E416}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentGateway", "PaymentGateway\PaymentGateway.csproj", "{9A52CC45-32D1-4C6F-8464-D99F2954E416}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Models", "PaymentGateway.Models\PaymentGateway.Models.csproj", "{249E84A0-FA71-4390-ADCC-9D2572F64247}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentGateway.Models", "PaymentGateway.Models\PaymentGateway.Models.csproj", "{249E84A0-FA71-4390-ADCC-9D2572F64247}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Application", "PaymentGateway.Application\PaymentGateway.Application.csproj", "{B8565DE8-C7A4-4B64-96FD-5B580F3ED672}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentGateway.Application", "PaymentGateway.Application\PaymentGateway.Application.csproj", "{B8565DE8-C7A4-4B64-96FD-5B580F3ED672}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Data", "PaymentGateway.Data\PaymentGateway.Data.csproj", "{E07D4EDD-166E-4003-B51B-9DA59CED9C3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentGateway.Data", "PaymentGateway.Data\PaymentGateway.Data.csproj", "{E07D4EDD-166E-4003-B51B-9DA59CED9C3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.PublishedLanguage", "PaymentGateway.PublishedLanguage\PaymentGateway.PublishedLanguage.csproj", "{198E23B5-B7B3-48E1-95C9-E3E2E7319A37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentGateway.PublishedLanguage", "PaymentGateway.PublishedLanguage\PaymentGateway.PublishedLanguage.csproj", "{198E23B5-B7B3-48E1-95C9-E3E2E7319A37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abstractions", "Abstractions\Abstractions.csproj", "{8460A454-D0E3-42BA-986D-F0B4E93BA905}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abstractions", "Abstractions\Abstractions.csproj", "{8460A454-D0E3-42BA-986D-F0B4E93BA905}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.ExternalService", "PaymentGateway.ExternalService\PaymentGateway.ExternalService.csproj", "{750E4FF1-1728-4034-8336-8D5EB603EDD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentGateway.ExternalService", "PaymentGateway.ExternalService\PaymentGateway.ExternalService.csproj", "{750E4FF1-1728-4034-8336-8D5EB603EDD1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F7772871-B057-45AE-AF67-0D91E89234E4}"
+	ProjectSection(SolutionItems) = preProject
+		C:\Users\ioana.nicolae\Downloads\dependencies.props = C:\Users\ioana.nicolae\Downloads\dependencies.props
+		C:\Users\ioana.nicolae\Downloads\Directory.Build.props = C:\Users\ioana.nicolae\Downloads\Directory.Build.props
+		C:\Users\ioana.nicolae\Downloads\NuGet.config = C:\Users\ioana.nicolae\Downloads\NuGet.config
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.WebApi", "PaymentGateway.WebApi\PaymentGateway.WebApi.csproj", "{56654F13-A4A5-4EE2-B96B-6FECBEA1828F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +60,10 @@ Global
 		{750E4FF1-1728-4034-8336-8D5EB603EDD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{750E4FF1-1728-4034-8336-8D5EB603EDD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{750E4FF1-1728-4034-8336-8D5EB603EDD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56654F13-A4A5-4EE2-B96B-6FECBEA1828F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56654F13-A4A5-4EE2-B96B-6FECBEA1828F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56654F13-A4A5-4EE2-B96B-6FECBEA1828F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56654F13-A4A5-4EE2-B96B-6FECBEA1828F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

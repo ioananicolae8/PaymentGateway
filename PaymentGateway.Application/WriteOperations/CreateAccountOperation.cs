@@ -11,29 +11,35 @@ using System.Threading.Tasks;
 
 namespace PaymentGateway.Application.WriteOperations
 {
+    
     public class CreateAccountOperation : IWriteOperation<CreateAccountCommand>
     {
-        public IEventSender eventSender;
+        private readonly IEventSender _eventSender;
+        private readonly AccountOptions _accountOptions;
+        private IEventSender eventSender1;
 
-        public CreateAccountOperation()
+        public CreateAccountOperation(IEventSender eventSender1)
         {
+            this.eventSender1 = eventSender1;
         }
 
-        public CreateAccountOperation(IEventSender eventSender)
+        public CreateAccountOperation(IEventSender eventSender, AccountOptions accountOptions)
         {
-            this.eventSender = eventSender;
+            _eventSender = eventSender;
+            _accountOptions = accountOptions;
         }
 
         public void PerformOperation(CreateAccountCommand operation)
         {
             Database database = Database.GetInstance();
-            Account account = new Account();
-            account.Balance = operation.Balance;
-            account.Currency = operation.Currency;
-            account.IbanCode = operation.IbanCode;
-            account.Type = operation.Type;
-            account.Status = operation.Status;
-            account.Limit = operation.Limit;
+            var account = new Account {
+            Balance = _accountOptions.InitialBalance,
+            Currency = operation.Currency,
+            IbanCode = operation.IbanCode,
+            Type = operation.Type,
+            Status = operation.Status,
+            Limit = operation.Limit
+        };
             Person person;
             if (operation.PersonId.HasValue)
             {
@@ -53,7 +59,7 @@ namespace PaymentGateway.Application.WriteOperations
             database.SaveChanges();
 
             AccountCreated eventAccountEvent = new(operation.IbanCode, operation.Type, operation.Status);
-            eventSender.SendEvent(eventAccountEvent);
+            _eventSender.SendEvent(eventAccountEvent);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace PaymentGateway.Application.WriteOperations
                     throw new Exception("Stock insufficient");
                 }
                 product.Limit -= item.Quantity;
-                totalAmount += item.Quantity + product.Value;
+                totalAmount += item.Quantity * product.Value;
                 ProductXTransaction productXTransaction = new ProductXTransaction();
                 productXTransaction.ProductId = item.ProductId;
                 productXTransaction.Quantity = item.Quantity;
