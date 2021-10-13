@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Abstractions
 {
-    public interface IReadOperation<TInput, TResult>
+    public interface IValidator<TInput>
     {
-        TResult PerformOperation(TInput query);
+        bool Validate(TInput input);
     }
 }

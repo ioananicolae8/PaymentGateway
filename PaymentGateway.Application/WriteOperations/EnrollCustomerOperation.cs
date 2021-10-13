@@ -23,25 +23,34 @@ namespace PaymentGateway.Application.WriteOperations
         {
 
             Database database = Database.GetInstance();
-            Person person = new Person();
-            person.Cnp = operation.UniqueIdentifier;
-            person.Name = operation.Name;
-            person.Type = operation.ClientType;
+            //Person person = new Person();
+            //person.Cnp = operation.UniqueIdentifier;
+            //person.Name = operation.Name;
+            //person.Type = operation.ClientType;
             var random = new Random();
-            database.Persons.Add(person);
+
+            var customer = new Person
+            {
+                Cnp = operation.UniqueIdentifier,
+                Name = operation.Name,
+                Type = operation.AccountType
+            };
 
             if (operation.ClientType == "Company")
             {
-                person.TypeOfPerson = PersonType.Company;
+                customer.TypeOfPerson = PersonType.Company;
             }
             else if (operation.ClientType == "Individual")
             {
-                person.TypeOfPerson = PersonType.Individual;
+                customer.TypeOfPerson = PersonType.Individual;
             }
             else
             {
                 throw new Exception("Unsupported person type");
             }
+
+            customer.PersonId = database.Persons.Count + 1;
+            database.Persons.Add(customer);
 
             Account account = new Account();
             account.Type = operation.AccountType;
