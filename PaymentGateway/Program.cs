@@ -12,6 +12,7 @@ using static PaymentGateway.PublishedLanguage.Commands.PurchaseProductCommand;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using PaymentGateway.Data;
+using MediatR;
 
 namespace PaymentGateway
 {
@@ -47,6 +48,7 @@ namespace PaymentGateway
 
             // setup
             var services = new ServiceCollection();
+            services.AddMediatR(typeof(ListOfAccounts).Assembly, typeof(AllEventsHandler).Assembly);
             services.RegisterBusinessServices(Configuration);
 
             // services.AddSingleton<IEventSender, EventSender>();
