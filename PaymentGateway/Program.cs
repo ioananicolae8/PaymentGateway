@@ -49,7 +49,7 @@ namespace PaymentGateway
             var services = new ServiceCollection();
             services.RegisterBusinessServices(Configuration);
 
-            services.AddSingleton<IEventSender, EventSender>();
+            // services.AddSingleton<IEventSender, EventSender>();
             services.AddSingleton(Configuration);
 
             // build
@@ -69,7 +69,8 @@ namespace PaymentGateway
             enrollCustomerOperation.Handle(enrollCustomer, default).GetAwaiter().GetResult();
 
             ///////////
-            var accountCommand = new CreateAccountCommand {
+            var accountCommand = new CreateAccountCommand
+            {
                 Balance = 45,
                 Currency = "$",
                 IbanCode = "ROING66434848993",
@@ -81,7 +82,8 @@ namespace PaymentGateway
             var accountOperation = serviceProvider.GetRequiredService<CreateAccountOperation>();
             accountOperation.Handle(accountCommand, default).GetAwaiter().GetResult();
 
-            var deposityMoneyCommand = new DepositMoneyCommand {
+            var deposityMoneyCommand = new DepositMoneyCommand
+            {
                 Amount = 3000000,
                 Currency = "$",
                 DateOfOperation = DateTime.Now,
@@ -93,7 +95,8 @@ namespace PaymentGateway
             deposityMoneyOperation.Handle(deposityMoneyCommand, default).GetAwaiter().GetResult();
 
 
-            var withdrawMoneyCommand = new WithdrawMoneyCommand {
+            var withdrawMoneyCommand = new WithdrawMoneyCommand
+            {
                 Amount = 200,
                 Currency = "$",
                 DateOfOperation = DateTime.Now,
@@ -105,7 +108,8 @@ namespace PaymentGateway
             withdrawMoneyOperation.Handle(withdrawMoneyCommand, default).GetAwaiter().GetResult();
 
 
-            var productCommand = new CreateProductCommand {
+            var productCommand = new CreateProductCommand
+            {
                 ProductId = 1,
                 Name = "Banana",
                 Value = 50,
@@ -115,7 +119,8 @@ namespace PaymentGateway
             var createProductOperation = serviceProvider.GetRequiredService<CreateProductOperation>();
             createProductOperation.Handle(productCommand, default).GetAwaiter().GetResult();
 
-            var productCommand1 = new CreateProductCommand {
+            var productCommand1 = new CreateProductCommand
+            {
                 ProductId = 2,
                 Name = "Pere",
                 Value = 4,
@@ -125,15 +130,16 @@ namespace PaymentGateway
             var createProductOperation1 = serviceProvider.GetRequiredService<CreateProductOperation>();
             createProductOperation1.Handle(productCommand1, default).GetAwaiter().GetResult();
 
-            var purchaseProductCommand = new PurchaseProductCommand() {
-            IbanCode = "ROING66434848993",
-            UniqueIdentifier = "2950603567835",
-            ProductDetails = new System.Collections.Generic.List<PurchaseProductDetail>
+            var purchaseProductCommand = new PurchaseProductCommand()
+            {
+                IbanCode = "ROING66434848993",
+                UniqueIdentifier = "2950603567835",
+                ProductDetails = new System.Collections.Generic.List<PurchaseProductDetail>
             {
             new PurchaseProductDetail { ProductId =productCommand.ProductId , Quantity = 2 },
             new PurchaseProductDetail { ProductId = productCommand1.ProductId, Quantity = 6 }
             },
-        };
+            };
             var purchaseProductOperation = serviceProvider.GetRequiredService<PurchaseProductOperation>();
             purchaseProductOperation.Handle(purchaseProductCommand, default).GetAwaiter().GetResult();
 

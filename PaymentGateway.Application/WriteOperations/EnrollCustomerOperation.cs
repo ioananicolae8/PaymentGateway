@@ -13,22 +13,19 @@ using System.Threading;
 
 namespace PaymentGateway.Application.Commands
 {
-        public class EnrollCustomerOperation : IRequestHandler<EnrollCustomerCommand>
+    public class EnrollCustomerOperation : IRequestHandler<EnrollCustomerCommand>
     {
-        public IEventSender eventSender;
-        public EnrollCustomerOperation(IEventSender eventSender)
+        private readonly IMediator _mediator;
+        private readonly Database _database;
+        public EnrollCustomerOperation(IMediator mediator, Database database)
         {
-            this.eventSender = eventSender;
+            _mediator = mediator;
+            _database = database;
         }
 
-            public Task<Unit> Handle(EnrollCustomerCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(EnrollCustomerCommand request, CancellationToken cancellationToken)
         {
 
-            Database database = Database.GetInstance();
-            //Person person = new Person();
-            //person.Cnp = operation.UniqueIdentifier;
-            //person.Name = operation.Name;
-            //person.Type = operation.ClientType;
             var random = new Random();
 
             var customer = new Person
@@ -51,8 +48,8 @@ namespace PaymentGateway.Application.Commands
                 throw new Exception("Unsupported person type");
             }
 
-            customer.PersonId = database.Persons.Count + 1;
-            database.Persons.Add(customer);
+            customer.PersonId = _database.Persons.Count + 1;
+            _database.Persons.Add(customer);
 
             Account account = new Account();
             account.Type = request.AccountType;
@@ -60,12 +57,13 @@ namespace PaymentGateway.Application.Commands
             account.Balance = 0;
             account.IbanCode = random.Next(100000).ToString();
 
-            database.Accounts.Add(account);
+            _database.Accounts.Add(account);
 
-            database.SaveChanges();
+            _database.SaveChanges();
             CustomerEnrolled eventCustomerEnroll = new(request.Name, request.UniqueIdentifier, request.ClientType);
-            eventSender.SendEvent(eventCustomerEnroll);
-            return Unit.Task;
+
+            await _mediator.Publish(eventCustomerEnroll, cancellationToken);
+            return Unit.Value;
         }
     }
 }

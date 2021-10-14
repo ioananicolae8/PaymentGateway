@@ -15,13 +15,14 @@ namespace PaymentGateway.Application.Commands
 {
     public class PurchaseProductOperation : IRequestHandler<PurchaseProductCommand>
     {
-        private readonly IEventSender _eventSender;
+        private readonly IMediator _mediator;
         private readonly Database _database;
-        public PurchaseProductOperation(IEventSender eventSender, Database database)
+        public PurchaseProductOperation(IMediator mediator, Database database)
         {
             _database = database;
+            _mediator = mediator;
         }
-        public Task<Unit> Handle(PurchaseProductCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(PurchaseProductCommand request, CancellationToken cancellationToken)
         {
             Database database = Database.GetInstance();
             Account account;
@@ -99,10 +100,12 @@ namespace PaymentGateway.Application.Commands
             _database.ProductXTransaction.AddRange(pxts);
 
             ProductPurchased productPurchased = new ProductPurchased { ProductDetails = request.ProductDetails };
-            _eventSender.SendEvent(productPurchased);
 
             _database.SaveChanges();
-            return Unit.Task;
+
+            await _mediator.Publish(productPurchased, cancellationToken);
+
+            return Unit.Value;
         }
     }
 }

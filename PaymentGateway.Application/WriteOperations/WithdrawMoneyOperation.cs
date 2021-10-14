@@ -15,16 +15,16 @@ namespace PaymentGateway.Application.Commands
 {
     public class WithdrawMoneyOperation : IRequestHandler<WithdrawMoneyCommand>
     {
-        public IEventSender eventSender;
+        private readonly IMediator _mediator;
         private readonly Database _database;
-        public WithdrawMoneyOperation(IEventSender eventSender, Database database)
+        public WithdrawMoneyOperation(IMediator mediator, Database database)
         {
+            _mediator = mediator;
             _database = database;
         }
 
-        public Task<Unit> Handle(WithdrawMoneyCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(WithdrawMoneyCommand request, CancellationToken cancellationToken)
         {
-            // Database database = Database.GetInstance();
             Account account;
             Person person;
             if (request.AccountId.HasValue)
@@ -70,12 +70,14 @@ namespace PaymentGateway.Application.Commands
             _database.Transactions.Add(transaction);
 
             TransactionCreated eventTransactionCreated = new(request.Amount, request.Currency, request.DateOfTransaction);
-            eventSender.SendEvent(eventTransactionCreated);
             AccountUpdated eventAccountUpdated = new AccountUpdated(request.IbanCode, request.DateOfOperation, request.Amount);
-            eventSender.SendEvent(eventAccountUpdated);
 
             _database.SaveChanges();
-            return Unit.Task;
+
+            await _mediator.Publish(eventTransactionCreated, cancellationToken);
+            await _mediator.Publish(eventAccountUpdated, cancellationToken);
+
+            return Unit.Value;
 
         }
     }

@@ -13,17 +13,18 @@ using System.Threading;
 
 namespace PaymentGateway.Application.Commands
 {
-    
-        public class DepositMoneyOperation : IRequestHandler<DepositMoneyCommand>
+
+    public class DepositMoneyOperation : IRequestHandler<DepositMoneyCommand>
     {
-        private readonly IEventSender _eventSender;
+        private readonly IMediator _mediator;
         private readonly Database _database;
-        public DepositMoneyOperation(IEventSender eventSender, Database database)
+        public DepositMoneyOperation(IMediator mediator, Database database)
         {
+            _mediator = mediator;
             _database = database;
         }
-      
-             public Task<Unit> Handle(DepositMoneyCommand request, CancellationToken cancellationToken)
+
+        public async Task<Unit> Handle(DepositMoneyCommand request, CancellationToken cancellationToken)
         {
             Database database = Database.GetInstance();
             Account account;
@@ -72,10 +73,12 @@ namespace PaymentGateway.Application.Commands
             database.Transactions.Add(transaction);
             database.SaveChanges();
             TransactionCreated eventTransactionCreated = new(request.Amount, request.Currency, request.DateOfTransaction);
-            _eventSender.SendEvent(eventTransactionCreated);
             AccountUpdated eventAccountUpdated = new AccountUpdated(request.IbanCode, request.DateOfOperation, request.Amount);
-            _eventSender.SendEvent(eventAccountUpdated);
-            return Unit.Task;
+
+            await _mediator.Publish(eventTransactionCreated, cancellationToken);
+            await _mediator.Publish(eventAccountUpdated, cancellationToken);
+
+            return Unit.Value;
         }
     }
 }

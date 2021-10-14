@@ -16,14 +16,16 @@ namespace PaymentGateway.Application.Commands
 
     public class CreateProductOperation : IRequestHandler<CreateProductCommand>
     {
-        public IEventSender eventSender;
-        public CreateProductOperation(IEventSender eventSender)
+        private readonly IMediator _mediator;
+        private readonly Database _database;
+        public CreateProductOperation(IMediator mediator, Database database)
         {
-            this.eventSender = eventSender;
+            _mediator = mediator;
+            _database = database;
         }
-        public Task<Unit> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            Database database = Database.GetInstance();
+           
             Product product = new Product();
             product.ProductId = request.ProductId;
             product.Name = request.Name;
@@ -31,13 +33,14 @@ namespace PaymentGateway.Application.Commands
             product.Currency = request.Currency;
             product.Limit = request.Limit;
 
-            database.Products.Add(product);
+            _database.Products.Add(product);
 
             ProductCreated eventProductCreated = new ProductCreated { Name = request.Name, Currency = request.Currency, Limit = request.Limit, Value = request.Value };
-            eventSender.SendEvent(eventProductCreated);
 
-            database.SaveChanges();
-            return Unit.Task;
+            _database.SaveChanges();
+            await _mediator.Publish(eventProductCreated, cancellationToken);
+
+            return Unit.Value;
 
         }
     }
