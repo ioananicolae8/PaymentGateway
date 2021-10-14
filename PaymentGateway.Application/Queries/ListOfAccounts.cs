@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PaymentGateway.Application.ReadOperations
+namespace PaymentGateway.Application.Queries
 {
     public class ListOfAccounts
     {
@@ -47,8 +47,8 @@ namespace PaymentGateway.Application.ReadOperations
                 _validator = validator;
             }
 
-            
-                public Task<List<Model>> Handle(Query request, CancellationToken cancellationToken)
+
+            public Task<List<Model>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var isValid = _validator.Validate(request);
 

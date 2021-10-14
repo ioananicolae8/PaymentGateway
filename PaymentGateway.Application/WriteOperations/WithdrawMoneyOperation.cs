@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace PaymentGateway.Application.Commands
 {
-        public class WithdrawMoneyOperation : IRequestHandler<WithdrawMoneyCommand>
+    public class WithdrawMoneyOperation : IRequestHandler<WithdrawMoneyCommand>
     {
         public IEventSender eventSender;
         private readonly Database _database;
@@ -21,10 +21,10 @@ namespace PaymentGateway.Application.Commands
         {
             _database = database;
         }
-     
-            public Task<Unit> Handle(WithdrawMoneyCommand request, CancellationToken cancellationToken)
+
+        public Task<Unit> Handle(WithdrawMoneyCommand request, CancellationToken cancellationToken)
         {
-           // Database database = Database.GetInstance();
+            // Database database = Database.GetInstance();
             Account account;
             Person person;
             if (request.AccountId.HasValue)

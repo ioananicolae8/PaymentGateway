@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediatR;
-using PaymentGateway.PublishedLanguage.Commands;
 using System.Threading;
 
 namespace PaymentGateway.Application.Commands

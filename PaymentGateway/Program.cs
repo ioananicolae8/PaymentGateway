@@ -6,7 +6,7 @@ using PaymentGateway.PublishedLanguage.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentGateway.Application;
-using PaymentGateway.Application.ReadOperations;
+using PaymentGateway.Application.Queries;
 using System;
 using static PaymentGateway.PublishedLanguage.Commands.PurchaseProductCommand;
 using System.IO;
@@ -138,7 +138,7 @@ namespace PaymentGateway
             purchaseProductOperation.Handle(purchaseProductCommand, default).GetAwaiter().GetResult();
 
 
-            var query = new Application.ReadOperations.ListOfAccounts.Query
+            var query = new Application.Queries.ListOfAccounts.Query
             {
                 PersonId = 1
             };
