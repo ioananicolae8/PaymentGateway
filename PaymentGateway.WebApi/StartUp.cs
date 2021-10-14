@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentGateway.Application;
-using PaymentGateway.Application.WriteOperations;
+using PaymentGateway.Application.Commands;
 using PaymentGateway.ExternalService;
 using PaymentGateway.WebApi.Swagger;
 

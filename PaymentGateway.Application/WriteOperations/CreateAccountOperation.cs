@@ -2,17 +2,19 @@
 using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Events;
-using PaymentGateway.PublishedLanguage.WritteSide;
+using PaymentGateway.PublishedLanguage.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediatR;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
-namespace PaymentGateway.Application.WriteOperations
+namespace PaymentGateway.Application.Commands
 {
-    
-    public class CreateAccountOperation : IWriteOperation<CreateAccountCommand>
+
+    public class CreateAccountOperation : IRequestHandler<CreateAccountCommand>
     {
         private readonly IEventSender _eventSender;
         private readonly AccountOptions _accountOptions;
@@ -29,37 +31,41 @@ namespace PaymentGateway.Application.WriteOperations
             _accountOptions = accountOptions;
         }
 
-        public void PerformOperation(CreateAccountCommand operation)
+
+        public Task<Unit> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
             Database database = Database.GetInstance();
-            var account = new Account {
-            Balance = _accountOptions.InitialBalance,
-            Currency = operation.Currency,
-            IbanCode = operation.IbanCode,
-            Type = operation.Type,
-            Status = operation.Status,
-            Limit = operation.Limit
-        };
-            Person person;
-            if (operation.PersonId.HasValue)
+            var account = new Account
             {
-                person = database.Persons?.FirstOrDefault(x => x.PersonId == operation.PersonId);
+                Balance = _accountOptions.InitialBalance,
+                Currency = request.Currency,
+                IbanCode = request.IbanCode,
+                Type = request.Type,
+                Status = request.Status,
+                Limit = request.Limit
+            };
+            Person person;
+            if (request.PersonId.HasValue)
+            {
+                person = database.Persons?.FirstOrDefault(x => x.PersonId == request.PersonId);
             }
             else
             {
-                person = database.Persons?.FirstOrDefault(x => x.Cnp == operation.UniqueIdentifier);
+                person = database.Persons?.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
                 account.PersonId = person.PersonId;
             }
             if (person == null)
             {
                 throw new Exception("Person not found!");
             }
-            account.PersonId = operation.PersonId;
+            account.PersonId = request.PersonId;
             database.Accounts.Add(account);
             database.SaveChanges();
 
-            AccountCreated eventAccountEvent = new(operation.IbanCode, operation.Type, operation.Status);
+            AccountCreated eventAccountEvent = new(request.IbanCode, request.Type, request.Status);
             _eventSender.SendEvent(eventAccountEvent);
+
+            return Unit.Task;
         }
     }
 }

@@ -1,14 +1,14 @@
 ﻿using Abstractions;
-using PaymentGateway.Application.WriteOperations;
+using PaymentGateway.Application.Commands;
 using PaymentGateway.ExternalService;
 using PaymentGateway.Models;
-using PaymentGateway.PublishedLanguage.WritteSide;
+using PaymentGateway.PublishedLanguage.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentGateway.Application;
 using PaymentGateway.Application.ReadOperations;
 using System;
-using static PaymentGateway.PublishedLanguage.WritteSide.PurchaseProductCommand;
+using static PaymentGateway.PublishedLanguage.Commands.PurchaseProductCommand;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using PaymentGateway.Data;
@@ -66,7 +66,7 @@ namespace PaymentGateway
             };
 
             var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
-            enrollCustomerOperation.PerformOperation(enrollCustomer);
+            enrollCustomerOperation.Handle(enrollCustomer, default).GetAwaiter().GetResult();
 
             ///////////
             var accountCommand = new CreateAccountCommand {
@@ -79,7 +79,7 @@ namespace PaymentGateway
                 UniqueIdentifier = "2950603567835"
             };
             var accountOperation = serviceProvider.GetRequiredService<CreateAccountOperation>();
-            accountOperation.PerformOperation(accountCommand);
+            accountOperation.Handle(accountCommand, default).GetAwaiter().GetResult();
 
             var deposityMoneyCommand = new DepositMoneyCommand {
                 Amount = 3000000,
@@ -90,7 +90,7 @@ namespace PaymentGateway
                 IbanCode = "ROING66434848993"
             };
             var deposityMoneyOperation = serviceProvider.GetRequiredService<DepositMoneyOperation>();
-            deposityMoneyOperation.PerformOperation(deposityMoneyCommand);
+            deposityMoneyOperation.Handle(deposityMoneyCommand, default).GetAwaiter().GetResult();
 
 
             var withdrawMoneyCommand = new WithdrawMoneyCommand {
@@ -102,7 +102,7 @@ namespace PaymentGateway
                 IbanCode = "ROING66434848993"
             };
             var withdrawMoneyOperation = serviceProvider.GetRequiredService<WithdrawMoneyOperation>();
-            withdrawMoneyOperation.PerformOperation(withdrawMoneyCommand);
+            withdrawMoneyOperation.Handle(withdrawMoneyCommand, default).GetAwaiter().GetResult();
 
 
             var productCommand = new CreateProductCommand {
@@ -113,7 +113,7 @@ namespace PaymentGateway
                 Limit = 5
             };
             var createProductOperation = serviceProvider.GetRequiredService<CreateProductOperation>();
-            createProductOperation.PerformOperation(productCommand);
+            createProductOperation.Handle(productCommand, default).GetAwaiter().GetResult();
 
             var productCommand1 = new CreateProductCommand {
                 ProductId = 2,
@@ -123,7 +123,7 @@ namespace PaymentGateway
                 Limit = 9
             };
             var createProductOperation1 = serviceProvider.GetRequiredService<CreateProductOperation>();
-            createProductOperation1.PerformOperation(productCommand1);
+            createProductOperation1.Handle(productCommand1, default).GetAwaiter().GetResult();
 
             var purchaseProductCommand = new PurchaseProductCommand() {
             IbanCode = "ROING66434848993",
@@ -135,7 +135,7 @@ namespace PaymentGateway
             },
         };
             var purchaseProductOperation = serviceProvider.GetRequiredService<PurchaseProductOperation>();
-            purchaseProductOperation.PerformOperation(purchaseProductCommand);
+            purchaseProductOperation.Handle(purchaseProductCommand, default).GetAwaiter().GetResult();
 
 
             var query = new Application.ReadOperations.ListOfAccounts.Query
@@ -144,7 +144,7 @@ namespace PaymentGateway
             };
 
             var handler = serviceProvider.GetRequiredService<ListOfAccounts.QueryHandler>();
-            var result = handler.PerformOperation(query);
+            var result = handler.Handle(query, default).GetAwaiter().GetResult();
         }
     }
 }

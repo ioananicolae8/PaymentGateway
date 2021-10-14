@@ -1,7 +1,7 @@
 ﻿using Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PaymentGateway.Application.WriteOperations;
+using PaymentGateway.Application.Commands;
 using PaymentGateway.Data;
 using static PaymentGateway.Application.ReadOperations.ListOfAccounts;
 

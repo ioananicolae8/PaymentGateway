@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PaymentGateway.PublishedLanguage.WritteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-    public class CreateProductCommand
+    public class CreateProductCommand : MediatR.IRequest
     {
         public int ProductId { get; set; }
         public string Name { get; set; }

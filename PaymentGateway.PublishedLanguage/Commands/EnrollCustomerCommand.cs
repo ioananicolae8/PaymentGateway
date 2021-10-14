@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PaymentGateway.PublishedLanguage.WritteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-  public  class EnrollCustomerCommand
+  public  class EnrollCustomerCommand : MediatR.IRequest
     {
         public string Name { get; set; }
         public string UniqueIdentifier { get; set; }

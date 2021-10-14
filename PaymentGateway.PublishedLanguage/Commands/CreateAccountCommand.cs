@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PaymentGateway.PublishedLanguage.WritteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-    public class CreateAccountCommand
+    public class CreateAccountCommand : MediatR.IRequest
     {
         public double Balance { get; set; } = 0;
         public string Currency { get; set; }

@@ -1,43 +1,46 @@
 ﻿using Abstractions;
+using MediatR;
 using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Events;
-using PaymentGateway.PublishedLanguage.WritteSide;
+using PaymentGateway.PublishedLanguage.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
-namespace PaymentGateway.Application.WriteOperations
+namespace PaymentGateway.Application.Commands
 {
-    public class PurchaseProductOperation : IWriteOperation<PurchaseProductCommand>
+    public class PurchaseProductOperation : IRequestHandler<PurchaseProductCommand>
     {
-        public IEventSender eventSender;
-        public PurchaseProductOperation(IEventSender eventSender)
+        private readonly IEventSender _eventSender;
+        private readonly Database _database;
+        public PurchaseProductOperation(IEventSender eventSender, Database database)
         {
-            this.eventSender = eventSender;
+            _database = database;
         }
-        public void PerformOperation(PurchaseProductCommand operation)
+        public Task<Unit> Handle(PurchaseProductCommand request, CancellationToken cancellationToken)
         {
             Database database = Database.GetInstance();
             Account account;
             Person person;
-            if (operation.AccountId.HasValue)
+            if (request.AccountId.HasValue)
             {
-                account = database.Accounts.FirstOrDefault(x => x.AccountId == operation.AccountId);
+                account = _database.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
             }
             else
             {
-                account = database.Accounts.FirstOrDefault(x => x.IbanCode == operation.IbanCode);
+                account = _database.Accounts.FirstOrDefault(x => x.IbanCode == request.IbanCode);
             }
-            if (operation.PersonId.HasValue)
+            if (request.PersonId.HasValue)
             {
-                person = database.Persons.FirstOrDefault(x => x.PersonId == operation.PersonId);
+                person = _database.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
             }
             else
             {
-                person = database.Persons.FirstOrDefault(x => x.Cnp == operation.UniqueIdentifier);
+                person = _database.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
             }
             if (account == null)
             {
@@ -48,7 +51,7 @@ namespace PaymentGateway.Application.WriteOperations
                 throw new Exception("Person not found!");
             }
 
-            var exists = database.Accounts.Any(x => x.PersonId == person.PersonId && x.AccountId == account.AccountId);
+            var exists = _database.Accounts.Any(x => x.PersonId == person.PersonId && x.AccountId == account.AccountId);
 
             if (!exists)
             {
@@ -59,9 +62,9 @@ namespace PaymentGateway.Application.WriteOperations
             var totalAmount = 0.0;
             Product product;
             var pxts = new List<ProductXTransaction>();
-            foreach (var item in operation.ProductDetails)
+            foreach (var item in request.ProductDetails)
             {
-                 product = database.Products.FirstOrDefault(x => x.ProductId == item.ProductId);
+                product = _database.Products.FirstOrDefault(x => x.ProductId == item.ProductId);
 
                 if (product.Limit < item.Quantity)
                 {
@@ -93,12 +96,13 @@ namespace PaymentGateway.Application.WriteOperations
                 item.TransactionId = transaction.TransactionId;
             }
 
-            database.ProductXTransaction.AddRange(pxts);
+            _database.ProductXTransaction.AddRange(pxts);
 
-            ProductPurchased productPurchased = new ProductPurchased { ProductDetails = operation.ProductDetails };
-            eventSender.SendEvent(productPurchased);
+            ProductPurchased productPurchased = new ProductPurchased { ProductDetails = request.ProductDetails };
+            _eventSender.SendEvent(productPurchased);
 
-            database.SaveChanges();
+            _database.SaveChanges();
+            return Unit.Task;
         }
     }
 }

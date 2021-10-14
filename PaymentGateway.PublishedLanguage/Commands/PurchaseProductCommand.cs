@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PaymentGateway.PublishedLanguage.WritteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-    public class PurchaseProductCommand
+    public class PurchaseProductCommand: MediatR.IRequest
     {
         public List<PurchaseProductDetail> ProductDetails = new List<PurchaseProductDetail>();
 

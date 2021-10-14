@@ -2,42 +2,46 @@
 using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Events;
-using PaymentGateway.PublishedLanguage.WritteSide;
+using PaymentGateway.PublishedLanguage.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediatR;
+using System.Threading;
 
-namespace PaymentGateway.Application.WriteOperations
+namespace PaymentGateway.Application.Commands
 {
-    public class WithdrawMoneyOperation : IWriteOperation<WithdrawMoneyCommand>
+        public class WithdrawMoneyOperation : IRequestHandler<WithdrawMoneyCommand>
     {
         public IEventSender eventSender;
-        public WithdrawMoneyOperation(IEventSender eventSender)
+        private readonly Database _database;
+        public WithdrawMoneyOperation(IEventSender eventSender, Database database)
         {
-            this.eventSender = eventSender;
+            _database = database;
         }
-        public void PerformOperation(WithdrawMoneyCommand operation)
+     
+            public Task<Unit> Handle(WithdrawMoneyCommand request, CancellationToken cancellationToken)
         {
-            Database database = Database.GetInstance();
+           // Database database = Database.GetInstance();
             Account account;
             Person person;
-            if (operation.AccountId.HasValue)
+            if (request.AccountId.HasValue)
             {
-                account = database.Accounts.FirstOrDefault(x => x.AccountId == operation.AccountId);
+                account = _database.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
             }
             else
             {
-                account = database.Accounts.FirstOrDefault(x => x.IbanCode == operation.IbanCode);
+                account = _database.Accounts.FirstOrDefault(x => x.IbanCode == request.IbanCode);
             }
-            if (operation.PersonId.HasValue)
+            if (request.PersonId.HasValue)
             {
-                person = database.Persons.FirstOrDefault(x => x.PersonId == operation.PersonId);
+                person = _database.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
             }
             else
             {
-                person = database.Persons.FirstOrDefault(x => x.Cnp == operation.UniqueIdentifier);
+                person = _database.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
             }
             if (account == null)
             {
@@ -48,29 +52,30 @@ namespace PaymentGateway.Application.WriteOperations
                 throw new Exception("Person not found!");
             }
 
-            var exists = database.Accounts.Any(x => x.PersonId == person.PersonId && x.AccountId == account.AccountId);
+            var exists = _database.Accounts.Any(x => x.PersonId == person.PersonId && x.AccountId == account.AccountId);
 
             if (!exists)
             {
                 throw new Exception("The person isn't associated with this account");
 
             }
-            account.AccountId = operation.AccountId;
-            person.PersonId = operation.PersonId;
+            account.AccountId = request.AccountId;
+            person.PersonId = request.PersonId;
             Transaction transaction = new Transaction();
-            transaction.Currency = operation.Currency;
-            transaction.Date = operation.DateOfTransaction;
-            transaction.Amount = -operation.Amount;
-            account.Balance -= operation.Amount;
+            transaction.Currency = request.Currency;
+            transaction.Date = request.DateOfTransaction;
+            transaction.Amount = -request.Amount;
+            account.Balance -= request.Amount;
 
-            database.Transactions.Add(transaction);
+            _database.Transactions.Add(transaction);
 
-            TransactionCreated eventTransactionCreated = new(operation.Amount, operation.Currency, operation.DateOfTransaction);
+            TransactionCreated eventTransactionCreated = new(request.Amount, request.Currency, request.DateOfTransaction);
             eventSender.SendEvent(eventTransactionCreated);
-            AccountUpdated eventAccountUpdated = new AccountUpdated(operation.IbanCode, operation.DateOfOperation, operation.Amount);
+            AccountUpdated eventAccountUpdated = new AccountUpdated(request.IbanCode, request.DateOfOperation, request.Amount);
             eventSender.SendEvent(eventAccountUpdated);
 
-            database.SaveChanges();
+            _database.SaveChanges();
+            return Unit.Task;
 
         }
     }

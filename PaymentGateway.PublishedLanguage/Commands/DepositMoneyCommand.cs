@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PaymentGateway.PublishedLanguage.WritteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-    public class DepositMoneyCommand
+    public class DepositMoneyCommand : MediatR.IRequest
     {
         public double Amount { get; set; }
         public string IbanCode { get; set; }
