@@ -15,15 +15,6 @@ namespace PaymentGateway.Data
         public List<Transaction> Transactions = new List<Transaction>();
         public List<ProductXTransaction> ProductXTransaction = new List<ProductXTransaction>();
 
-        private static Database _instance;
-        public static Database GetInstance()
-        {
-            if (_instance == null)
-            {
-                _instance = new Database();
-            }
-            return _instance;
-        }
         public void SaveChanges()
         {
             Console.WriteLine("Save changes to database");

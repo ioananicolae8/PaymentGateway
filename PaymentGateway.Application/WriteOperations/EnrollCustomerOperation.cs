@@ -60,7 +60,13 @@ namespace PaymentGateway.Application.Commands
             _database.Accounts.Add(account);
 
             _database.SaveChanges();
-            CustomerEnrolled eventCustomerEnroll = new(request.Name, request.UniqueIdentifier, request.ClientType);
+            // CustomerEnrolled eventCustomerEnroll = new CustomerEnrolled(request.Name, request.UniqueIdentifier, request.ClientType);
+            var eventCustomerEnroll = new CustomerEnrolled
+            {
+                Name = customer.Name,
+                Cnp = customer.Cnp,
+                ClientType = request.ClientType
+            };
 
             await _mediator.Publish(eventCustomerEnroll, cancellationToken);
             return Unit.Value;

@@ -13,12 +13,12 @@ namespace PaymentGateway.PublishedLanguage.Events
         public string Cnp { get; set; }
         public string ClientType { get; set; }
 
-        public CustomerEnrolled(string name, string cnp, string clientType)
-        {
-            this.Name = name;
-            this.Cnp = cnp;
-            this.ClientType = clientType;
-        }
+        //public CustomerEnrolled(string name, string cnp, string clientType)
+        //{
+        //    this.Name = name;
+        //    this.Cnp = cnp;
+        //    this.ClientType = clientType;
+        //}
 
         public override string ToString()
         {

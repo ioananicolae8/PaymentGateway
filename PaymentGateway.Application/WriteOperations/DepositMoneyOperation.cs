@@ -26,24 +26,24 @@ namespace PaymentGateway.Application.Commands
 
         public async Task<Unit> Handle(DepositMoneyCommand request, CancellationToken cancellationToken)
         {
-            Database database = Database.GetInstance();
+       
             Account account;
             Person person;
             if (request.AccountId.HasValue)
             {
-                account = database.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
+                account = _database.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
             }
             else
             {
-                account = database.Accounts.FirstOrDefault(x => x.IbanCode == request.IbanCode);
+                account = _database.Accounts.FirstOrDefault(x => x.IbanCode == request.IbanCode);
             }
             if (request.PersonId.HasValue)
             {
-                person = database.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
+                person = _database.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
             }
             else
             {
-                person = database.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
+                person = _database.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
             }
             if (account == null)
             {
@@ -54,7 +54,7 @@ namespace PaymentGateway.Application.Commands
                 throw new Exception("Person not found!");
             }
 
-            var exists = database.Accounts.Any(x => x.PersonId == person.PersonId && x.AccountId == account.AccountId);
+            var exists = _database.Accounts.Any(x => x.PersonId == person.PersonId && x.AccountId == account.AccountId);
 
             if (!exists)
             {
@@ -62,7 +62,6 @@ namespace PaymentGateway.Application.Commands
 
             }
             account.AccountId = request.AccountId;
-            person.PersonId = request.PersonId;
             Transaction transaction = new Transaction();
             transaction.Currency = request.Currency;
             transaction.Date = request.DateOfTransaction;
@@ -70,8 +69,8 @@ namespace PaymentGateway.Application.Commands
             account.Balance += request.Amount;
 
 
-            database.Transactions.Add(transaction);
-            database.SaveChanges();
+            _database.Transactions.Add(transaction);
+            _database.SaveChanges();
             TransactionCreated eventTransactionCreated = new(request.Amount, request.Currency, request.DateOfTransaction);
             AccountUpdated eventAccountUpdated = new AccountUpdated(request.IbanCode, request.DateOfOperation, request.Amount);
 

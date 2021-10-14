@@ -60,11 +60,12 @@ namespace PaymentGateway.Application.Commands
 
             }
             account.AccountId = request.AccountId;
-            person.PersonId = request.PersonId;
-            Transaction transaction = new Transaction();
-            transaction.Currency = request.Currency;
-            transaction.Date = request.DateOfTransaction;
-            transaction.Amount = -request.Amount;
+            Transaction transaction = new Transaction
+            {
+                Currency = request.Currency,
+                Date = request.DateOfTransaction,
+                Amount = -request.Amount
+            };
             account.Balance -= request.Amount;
 
             _database.Transactions.Add(transaction);

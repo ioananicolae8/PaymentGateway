@@ -8,8 +8,7 @@ namespace PaymentGateway.Models
 {
     public class Person
     {
-        public int ? PersonId { get; set; }
-        public string Id { get; set; }
+        public int PersonId { get; set; }
         public string Name { get; set; }
         public string Cnp { get; set; }
         public string Type { get; set; }

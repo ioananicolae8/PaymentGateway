@@ -28,7 +28,7 @@ namespace PaymentGateway.Application.Commands
         }
         public async Task<Unit> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
-            Database database = Database.GetInstance();
+            
             var account = new Account
             {
                 Balance = _accountOptions.InitialBalance,
@@ -41,20 +41,20 @@ namespace PaymentGateway.Application.Commands
             Person person;
             if (request.PersonId.HasValue)
             {
-                person = database.Persons?.FirstOrDefault(x => x.PersonId == request.PersonId);
+                person = _database.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
             }
             else
             {
-                person = database.Persons?.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
-                account.PersonId = person.PersonId;
+                person = _database.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
             }
+
             if (person == null)
             {
                 throw new Exception("Person not found!");
             }
-            account.PersonId = request.PersonId;
-            database.Accounts.Add(account);
-            database.SaveChanges();
+            account.PersonId = person.PersonId;
+            _database.Accounts.Add(account);
+            _database.SaveChanges();
 
             AccountCreated eventAccountEvent = new(request.IbanCode, request.Type, request.Status);
 

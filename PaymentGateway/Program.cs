@@ -10,16 +10,17 @@ using PaymentGateway.Application.Queries;
 using System;
 using static PaymentGateway.PublishedLanguage.Commands.PurchaseProductCommand;
 using System.IO;
-using Microsoft.Extensions.Configuration;
 using PaymentGateway.Data;
 using MediatR;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace PaymentGateway
 {
     class Program
     {
         static IConfiguration Configuration;
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
             //var db = Database.GetInstance();
@@ -48,6 +49,9 @@ namespace PaymentGateway
 
             // setup
             var services = new ServiceCollection();
+            var source = new CancellationTokenSource();
+            var cancellationToken = source.Token;
+
             services.AddMediatR(typeof(ListOfAccounts).Assembly, typeof(AllEventsHandler).Assembly);
             services.RegisterBusinessServices(Configuration);
 
@@ -56,6 +60,8 @@ namespace PaymentGateway
 
             // build
             var serviceProvider = services.BuildServiceProvider();
+            var database = serviceProvider.GetRequiredService<Database>();
+            var mediator = serviceProvider.GetRequiredService<IMediator>();
 
             // use
             var enrollCustomer = new EnrollCustomerCommand
@@ -64,11 +70,12 @@ namespace PaymentGateway
                 AccountType = "Debit",
                 Name = "Gigi Popa",
                 Currency = "Eur",
-                UniqueIdentifier = "23"
+                UniqueIdentifier = "2950603567835"
             };
 
-            var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
-            enrollCustomerOperation.Handle(enrollCustomer, default).GetAwaiter().GetResult();
+            //var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
+            //enrollCustomerOperation.Handle(enrollCustomer, default).GetAwaiter().GetResult();
+            await mediator.Send(enrollCustomer, cancellationToken);
 
             ///////////
             var accountCommand = new CreateAccountCommand
@@ -81,8 +88,9 @@ namespace PaymentGateway
                 Limit = 100000,
                 UniqueIdentifier = "2950603567835"
             };
-            var accountOperation = serviceProvider.GetRequiredService<CreateAccountOperation>();
-            accountOperation.Handle(accountCommand, default).GetAwaiter().GetResult();
+            // var accountOperation = serviceProvider.GetRequiredService<CreateAccountOperation>();
+            // accountOperation.Handle(accountCommand, default).GetAwaiter().GetResult();
+            await mediator.Send(accountCommand, cancellationToken);
 
             var deposityMoneyCommand = new DepositMoneyCommand
             {
@@ -93,8 +101,9 @@ namespace PaymentGateway
                 UniqueIdentifier = "2950603567835",
                 IbanCode = "ROING66434848993"
             };
-            var deposityMoneyOperation = serviceProvider.GetRequiredService<DepositMoneyOperation>();
-            deposityMoneyOperation.Handle(deposityMoneyCommand, default).GetAwaiter().GetResult();
+            // var deposityMoneyOperation = serviceProvider.GetRequiredService<DepositMoneyOperation>();
+            // deposityMoneyOperation.Handle(deposityMoneyCommand, default).GetAwaiter().GetResult();
+            await mediator.Send(deposityMoneyCommand, cancellationToken);
 
 
             var withdrawMoneyCommand = new WithdrawMoneyCommand
@@ -106,9 +115,9 @@ namespace PaymentGateway
                 UniqueIdentifier = "2950603567835",
                 IbanCode = "ROING66434848993"
             };
-            var withdrawMoneyOperation = serviceProvider.GetRequiredService<WithdrawMoneyOperation>();
-            withdrawMoneyOperation.Handle(withdrawMoneyCommand, default).GetAwaiter().GetResult();
-
+            //var withdrawMoneyOperation = serviceProvider.GetRequiredService<WithdrawMoneyOperation>();
+            //withdrawMoneyOperation.Handle(withdrawMoneyCommand, default).GetAwaiter().GetResult();
+            await mediator.Send(withdrawMoneyCommand, cancellationToken);
 
             var productCommand = new CreateProductCommand
             {
@@ -118,8 +127,9 @@ namespace PaymentGateway
                 Currency = "RON",
                 Limit = 5
             };
-            var createProductOperation = serviceProvider.GetRequiredService<CreateProductOperation>();
-            createProductOperation.Handle(productCommand, default).GetAwaiter().GetResult();
+            //var createProductOperation = serviceProvider.GetRequiredService<CreateProductOperation>();
+            //createProductOperation.Handle(productCommand, default).GetAwaiter().GetResult();
+            await mediator.Send(productCommand, cancellationToken);
 
             var productCommand1 = new CreateProductCommand
             {
@@ -129,8 +139,9 @@ namespace PaymentGateway
                 Currency = "RON",
                 Limit = 9
             };
-            var createProductOperation1 = serviceProvider.GetRequiredService<CreateProductOperation>();
-            createProductOperation1.Handle(productCommand1, default).GetAwaiter().GetResult();
+            //var createProductOperation1 = serviceProvider.GetRequiredService<CreateProductOperation>();
+            //createProductOperation1.Handle(productCommand1, default).GetAwaiter().GetResult();
+            await mediator.Send(productCommand1, cancellationToken);
 
             var purchaseProductCommand = new PurchaseProductCommand()
             {
@@ -142,17 +153,18 @@ namespace PaymentGateway
             new PurchaseProductDetail { ProductId = productCommand1.ProductId, Quantity = 6 }
             },
             };
-            var purchaseProductOperation = serviceProvider.GetRequiredService<PurchaseProductOperation>();
-            purchaseProductOperation.Handle(purchaseProductCommand, default).GetAwaiter().GetResult();
-
+            // var purchaseProductOperation = serviceProvider.GetRequiredService<PurchaseProductOperation>();
+            // purchaseProductOperation.Handle(purchaseProductCommand, default).GetAwaiter().GetResult();
+            await mediator.Send(purchaseProductCommand, cancellationToken);
 
             var query = new Application.Queries.ListOfAccounts.Query
             {
                 PersonId = 1
             };
 
-            var handler = serviceProvider.GetRequiredService<ListOfAccounts.QueryHandler>();
-            var result = handler.Handle(query, default).GetAwaiter().GetResult();
+            //var handler = serviceProvider.GetRequiredService<ListOfAccounts.QueryHandler>();
+            // var result = handler.Handle(query, default).GetAwaiter().GetResult();
+            var result = await mediator.Send(query, cancellationToken);
         }
     }
 }

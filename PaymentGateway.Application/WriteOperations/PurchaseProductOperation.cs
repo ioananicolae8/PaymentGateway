@@ -24,7 +24,7 @@ namespace PaymentGateway.Application.Commands
         }
         public async Task<Unit> Handle(PurchaseProductCommand request, CancellationToken cancellationToken)
         {
-            Database database = Database.GetInstance();
+            
             Account account;
             Person person;
             if (request.AccountId.HasValue)
@@ -89,7 +89,7 @@ namespace PaymentGateway.Application.Commands
             Transaction transaction = new Transaction();
             transaction.Amount = -totalAmount;
             transaction.Currency = "$";
-            database.Transactions.Add(transaction);
+            _database.Transactions.Add(transaction);
             account.Balance -= totalAmount;
 
             foreach (var item in pxts)
