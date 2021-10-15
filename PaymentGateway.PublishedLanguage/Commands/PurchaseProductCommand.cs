@@ -18,7 +18,7 @@ namespace PaymentGateway.PublishedLanguage.Commands
         public class PurchaseProductDetail
         {
             public int ProductId { get; set; }
-            public double Quantity { get; set; }
+            public decimal Quantity { get; set; }
         }
 
 

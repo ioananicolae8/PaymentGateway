@@ -31,7 +31,7 @@ namespace PaymentGateway.Application.Commands
             product.Name = request.Name;
             product.Value = request.Value;
             product.Currency = request.Currency;
-            product.Limit = request.Limit;
+            product.Limit = (decimal)request.Limit;
 
             _database.Products.Add(product);
 

@@ -58,7 +58,6 @@ namespace PaymentGateway.Application.Queries
             }
         }
     
-
             public class Query : IRequest<List<Model>>
             {
                 public int? PersonId { get; set; }

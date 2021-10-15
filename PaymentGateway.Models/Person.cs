@@ -11,7 +11,6 @@ namespace PaymentGateway.Models
         public int PersonId { get; set; }
         public string Name { get; set; }
         public string Cnp { get; set; }
-        public string Type { get; set; }
 
         public PersonType TypeOfPerson { get; set; }
 

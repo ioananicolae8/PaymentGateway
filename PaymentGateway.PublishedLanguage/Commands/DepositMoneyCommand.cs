@@ -8,7 +8,7 @@ namespace PaymentGateway.PublishedLanguage.Commands
 {
     public class DepositMoneyCommand : MediatR.IRequest
     {
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
         public string IbanCode { get; set; }
         public int? AccountId { get; set; }
         public string UniqueIdentifier { get; set; }

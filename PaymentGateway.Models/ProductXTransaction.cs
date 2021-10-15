@@ -11,9 +11,9 @@ namespace PaymentGateway.Models
         public int ProductId { get; set; }
         public int TransactionId { get; set; }
 
-        public double Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
-        public double Value { get; set; }
+        public decimal Value { get; set; }
         public string Name { get; set; }
     }
 }

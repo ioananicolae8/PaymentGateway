@@ -31,8 +31,7 @@ namespace PaymentGateway.Application.Commands
             var customer = new Person
             {
                 Cnp = request.UniqueIdentifier,
-                Name = request.Name,
-                Type = request.AccountType
+                Name = request.Name
             };
 
             if (request.ClientType == "Company")

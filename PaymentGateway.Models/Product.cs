@@ -10,9 +10,9 @@ namespace PaymentGateway.Models
     {
         public int ProductId { get; set; }
         public string Name { get; set; }
-        public double Value { get; set; }
+        public decimal Value { get; set; }
         public string Currency { get; set; }
-        public double Limit { get; set; }
+        public decimal Limit { get; set; }
 
     }
 }
