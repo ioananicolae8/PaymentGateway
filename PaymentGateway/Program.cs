@@ -14,6 +14,10 @@ using PaymentGateway.Data;
 using MediatR;
 using System.Threading.Tasks;
 using System.Threading;
+using FluentValidation;
+using MediatR.Pipeline;
+using PaymentGateway.PublishedLanguage.Events;
+using PaymentGateway.WebApi.MediatorPipeline;
 
 namespace PaymentGateway
 {
@@ -51,11 +55,24 @@ namespace PaymentGateway
             var services = new ServiceCollection();
             var source = new CancellationTokenSource();
             var cancellationToken = source.Token;
-
-            services.AddMediatR(typeof(ListOfAccounts).Assembly, typeof(AllEventsHandler).Assembly);
             services.RegisterBusinessServices(Configuration);
 
-            // services.AddSingleton<IEventSender, EventSender>();
+            services.Scan(scan => scan
+                  .FromAssemblyOf<ListOfAccounts>()
+                  .AddClasses(classes => classes.AssignableTo<IValidator>())
+                  .AsImplementedInterfaces()
+                  .WithScopedLifetime());
+
+           
+
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
+            services.AddScoped(typeof(IRequestPreProcessor<>), typeof(ValidationPreProcessor<>));
+
+            services.AddScopedContravariant<INotificationHandler<INotification>, AllEventsHandler>(typeof(CustomerEnrolled).Assembly);
+
+            services.AddMediatR(new[] { typeof(ListOfAccounts).Assembly, typeof(AllEventsHandler).Assembly }); // get all IRequestHandler and INotificationHandler classes
+
             services.AddSingleton(Configuration);
 
             // build
@@ -157,7 +174,7 @@ namespace PaymentGateway
             // purchaseProductOperation.Handle(purchaseProductCommand, default).GetAwaiter().GetResult();
             await mediator.Send(purchaseProductCommand, cancellationToken);
 
-            var query = new Application.Queries.ListOfAccounts.Query
+            var query = new ListOfAccounts.Query
             {
                 PersonId = 1
             };

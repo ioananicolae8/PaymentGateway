@@ -7,3 +7,11 @@
 //        void PerformOperation(TCommand operation); // IRequest<TCommand>
 //    }
 //}
+
+namespace Abstractions
+{
+    public interface ITest<TCommand> // IRequest<TCommand>
+    {
+        void PerformOperation(TCommand operation);
+    }
+}
