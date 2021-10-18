@@ -17,27 +17,27 @@ namespace PaymentGateway.Application.Commands
     public class CreateProductOperation : IRequestHandler<CreateProductCommand>
     {
         private readonly IMediator _mediator;
-        private readonly Database _database;
-        public CreateProductOperation(IMediator mediator, Database database)
+        private readonly PaymentDbContext _dbContext;
+        public CreateProductOperation(IMediator mediator, PaymentDbContext dbContext)
         {
             _mediator = mediator;
-            _database = database;
+            _dbContext = dbContext;
         }
         public async Task<Unit> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-           
-            Product product = new Product();
-            product.ProductId = request.ProductId;
-            product.Name = request.Name;
-            product.Value = request.Value;
-            product.Currency = request.Currency;
-            product.Limit = (decimal)request.Limit;
 
-            _database.Products.Add(product);
+            Product product = new Product
+            {
+                Name = request.Name,
+                Value = request.Value,
+                Currency = request.Currency,
+                Limit = request.Limit
+            };
 
-            ProductCreated eventProductCreated = new ProductCreated { Name = request.Name, Currency = request.Currency, Limit = request.Limit, Value = request.Value };
+            _dbContext.Products.Add(product);
+            _dbContext.SaveChanges();
 
-            _database.SaveChanges();
+            var eventProductCreated = new ProductCreated { Name = request.Name, Currency = request.Currency, Limit = request.Limit, Value = request.Value };
             await _mediator.Publish(eventProductCreated, cancellationToken);
 
             return Unit.Value;

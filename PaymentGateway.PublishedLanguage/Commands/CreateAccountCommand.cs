@@ -8,12 +8,12 @@ namespace PaymentGateway.PublishedLanguage.Commands
 {
     public class CreateAccountCommand : MediatR.IRequest
     {
-        public decimal Balance { get; set; } = 0;
+        public double Balance { get; set; } = 0;
         public string Currency { get; set; }
         public string IbanCode { get; set; }
         public string Type { get; set; }
         public string Status { get; set; }
-        public decimal Limit { get; set; }
+        public double Limit { get; set; }
         public string UniqueIdentifier { get; set; }
         public int ? PersonId { get; set; }
     }

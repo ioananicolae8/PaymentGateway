@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+#nullable disable
 
 namespace PaymentGateway.Models
 {
-    public class Transaction
+    public partial class Transaction
     {
+        public Transaction()
+        {
+            ProductXtransactions = new HashSet<ProductXTransaction>();
+        }
+
         public int TransactionId { get; set; }
-        public int AccountId { get; set; }
-        public decimal Amount { get; set; }
-        public DateTime Date { get; set; }
+        public double Amount { get; set; }
+        public DateTime DateTime { get; set; }
         public string Currency { get; set; }
         public string Type { get; set; }
         public string Status { get; set; }
-        public object Transactions { get; set; }
+        public int AccountId { get; set; }
+
+        public virtual Account Account { get; set; }
+        public virtual ICollection<ProductXTransaction> ProductXtransactions { get; set; }
     }
 }
-

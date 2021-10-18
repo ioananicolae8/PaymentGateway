@@ -16,11 +16,11 @@ namespace PaymentGateway.Application.Commands
     public class EnrollCustomerOperation : IRequestHandler<EnrollCustomerCommand>
     {
         private readonly IMediator _mediator;
-        private readonly Database _database;
-        public EnrollCustomerOperation(IMediator mediator, Database database)
+        private readonly PaymentDbContext _dbContext;
+        public EnrollCustomerOperation(IMediator mediator, PaymentDbContext dbContext)
         {
             _mediator = mediator;
-            _database = database;
+            _dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(EnrollCustomerCommand request, CancellationToken cancellationToken)
@@ -36,29 +36,33 @@ namespace PaymentGateway.Application.Commands
 
             if (request.ClientType == "Company")
             {
-                customer.TypeOfPerson = PersonType.Company;
+                customer.TypeOfPerson = (int)PersonType.Company;
             }
             else if (request.ClientType == "Individual")
             {
-                customer.TypeOfPerson = PersonType.Individual;
+                customer.TypeOfPerson = (int)PersonType.Individual;
             }
             else
             {
                 throw new Exception("Unsupported person type");
             }
 
-            customer.PersonId = _database.Persons.Count + 1;
-            _database.Persons.Add(customer);
+            _dbContext.Persons.Add(customer);
+            _dbContext.SaveChanges();
 
-            Account account = new Account();
-            account.Type = request.AccountType;
-            account.Currency = request.Currency;
-            account.Balance = 0;
-            account.IbanCode = random.Next(100000).ToString();
+            var account = new Account()
+            {
+                Type = request.AccountType,
+                Currency = request.Currency,
+                Balance = 0,
+                IbanCode = request.IbanCode,
+                Status = "Active",
+                PersonId = customer.PersonId
+            };
 
-            _database.Accounts.Add(account);
+            _dbContext.Accounts.Add(account);
 
-            _database.SaveChanges();
+            _dbContext.SaveChanges();
             // CustomerEnrolled eventCustomerEnroll = new CustomerEnrolled(request.Name, request.UniqueIdentifier, request.ClientType);
             var eventCustomerEnroll = new CustomerEnrolled
             {

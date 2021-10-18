@@ -17,7 +17,7 @@ namespace PaymentGateway.Application
             //services.AddTransient<WithdrawMoneyOperation>();
             //services.AddTransient<PurchaseProductOperation>();
 
-            services.AddSingleton<Database>();
+            services.AddSingleton<PaymentDbContext>();
 
             services.AddSingleton(sp =>
             {

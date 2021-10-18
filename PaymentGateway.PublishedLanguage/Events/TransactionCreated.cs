@@ -13,7 +13,7 @@ namespace PaymentGateway.PublishedLanguage.Events
         public string Currency { get; set; }
         public DateTime DateOfTransaction{get; set;}
 
-        public TransactionCreated( double amount, string currency, DateTime date)
+        public TransactionCreated(double amount, string currency, DateTime date)
         {
             this.Amount = amount;
             this.Currency = currency;

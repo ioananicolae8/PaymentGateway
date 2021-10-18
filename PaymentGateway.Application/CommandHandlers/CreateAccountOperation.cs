@@ -17,14 +17,14 @@ namespace PaymentGateway.Application.Commands
     public class CreateAccountOperation : IRequestHandler<CreateAccountCommand>
     {
         private readonly IMediator _mediator;
-        private readonly Database _database;
+        private readonly PaymentDbContext _dbContext;
         private readonly AccountOptions _accountOptions;
 
-        public CreateAccountOperation(IMediator mediator, AccountOptions accountOptions, Database database)
+        public CreateAccountOperation(IMediator mediator, AccountOptions accountOptions, PaymentDbContext dbContext)
         {
             _mediator = mediator;
             _accountOptions = accountOptions;
-            _database = database;
+            _dbContext = dbContext;
         }
         public async Task<Unit> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
@@ -35,17 +35,17 @@ namespace PaymentGateway.Application.Commands
                 Currency = request.Currency,
                 IbanCode = request.IbanCode,
                 Type = request.Type,
-                Status = request.Status,
-                Limit = request.Limit
+                Status = "Active",
+                Limit = 200
             };
             Person person;
             if (request.PersonId.HasValue)
             {
-                person = _database.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
+                person = _dbContext.Persons.FirstOrDefault(x => x.PersonId == request.PersonId);
             }
             else
             {
-                person = _database.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
+                person = _dbContext.Persons.FirstOrDefault(x => x.Cnp == request.UniqueIdentifier);
             }
 
             if (person == null)
@@ -53,8 +53,8 @@ namespace PaymentGateway.Application.Commands
                 throw new Exception("Person not found!");
             }
             account.PersonId = person.PersonId;
-            _database.Accounts.Add(account);
-            _database.SaveChanges();
+            _dbContext.Accounts.Add(account);
+            _dbContext.SaveChanges();
 
             AccountCreated eventAccountEvent = new(request.IbanCode, request.Type, request.Status);
 

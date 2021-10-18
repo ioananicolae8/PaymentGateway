@@ -56,6 +56,7 @@ namespace PaymentGateway
             var source = new CancellationTokenSource();
             var cancellationToken = source.Token;
             services.RegisterBusinessServices(Configuration);
+            services.AddPaymentDataAccess(Configuration);
 
             services.Scan(scan => scan
                   .FromAssemblyOf<ListOfAccounts>()
@@ -63,7 +64,6 @@ namespace PaymentGateway
                   .AsImplementedInterfaces()
                   .WithScopedLifetime());
 
-           
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
@@ -77,8 +77,12 @@ namespace PaymentGateway
 
             // build
             var serviceProvider = services.BuildServiceProvider();
-            var database = serviceProvider.GetRequiredService<Database>();
+            var dataBase = serviceProvider.GetRequiredService<PaymentDbContext>();
             var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+            var cnp = Guid.NewGuid().ToString().Substring(0,13);
+            var iban = Guid.NewGuid().ToString();
+            var iban2 = Guid.NewGuid().ToString();
 
             // use
             var enrollCustomer = new EnrollCustomerCommand
@@ -87,11 +91,12 @@ namespace PaymentGateway
                 AccountType = "Debit",
                 Name = "Gigi Popa",
                 Currency = "Eur",
-                UniqueIdentifier = "2950603567835"
+                UniqueIdentifier = cnp,
+                IbanCode = iban
             };
 
-            //var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
-            //enrollCustomerOperation.Handle(enrollCustomer, default).GetAwaiter().GetResult();
+            ////var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
+            ////enrollCustomerOperation.Handle(enrollCustomer, default).GetAwaiter().GetResult();
             await mediator.Send(enrollCustomer, cancellationToken);
 
             ///////////
@@ -99,11 +104,11 @@ namespace PaymentGateway
             {
                 Balance = 45,
                 Currency = "$",
-                IbanCode = "ROING66434848993",
+                IbanCode = iban2,
                 Type = "Economii",
                 Status = "activ",
                 Limit = 100000,
-                UniqueIdentifier = "2950603567835"
+                UniqueIdentifier = cnp
             };
             // var accountOperation = serviceProvider.GetRequiredService<CreateAccountOperation>();
             // accountOperation.Handle(accountCommand, default).GetAwaiter().GetResult();
@@ -115,13 +120,11 @@ namespace PaymentGateway
                 Currency = "$",
                 DateOfOperation = DateTime.Now,
                 DateOfTransaction = DateTime.Now,
-                UniqueIdentifier = "2950603567835",
-                IbanCode = "ROING66434848993"
+                IbanCode = iban2
             };
             // var deposityMoneyOperation = serviceProvider.GetRequiredService<DepositMoneyOperation>();
             // deposityMoneyOperation.Handle(deposityMoneyCommand, default).GetAwaiter().GetResult();
             await mediator.Send(deposityMoneyCommand, cancellationToken);
-
 
             var withdrawMoneyCommand = new WithdrawMoneyCommand
             {
@@ -129,8 +132,7 @@ namespace PaymentGateway
                 Currency = "$",
                 DateOfOperation = DateTime.Now,
                 DateOfTransaction = DateTime.Now,
-                UniqueIdentifier = "2950603567835",
-                IbanCode = "ROING66434848993"
+                IbanCode = iban2
             };
             //var withdrawMoneyOperation = serviceProvider.GetRequiredService<WithdrawMoneyOperation>();
             //withdrawMoneyOperation.Handle(withdrawMoneyCommand, default).GetAwaiter().GetResult();
@@ -138,11 +140,10 @@ namespace PaymentGateway
 
             var productCommand = new CreateProductCommand
             {
-                ProductId = 1,
                 Name = "Banana",
-                Value = 50,
+                Value = 5,
                 Currency = "RON",
-                Limit = 5
+                Limit = 400
             };
             //var createProductOperation = serviceProvider.GetRequiredService<CreateProductOperation>();
             //createProductOperation.Handle(productCommand, default).GetAwaiter().GetResult();
@@ -150,24 +151,31 @@ namespace PaymentGateway
 
             var productCommand1 = new CreateProductCommand
             {
-                ProductId = 2,
                 Name = "Pere",
                 Value = 4,
                 Currency = "RON",
-                Limit = 9
+                Limit = 200
             };
+
+            Product produs1 = new()
+            {
+                Name = "Pere",
+                Value = 4,
+                Currency = "RON",
+                Limit = 200
+            };
+            dataBase.Products.Add(produs1);
+
             //var createProductOperation1 = serviceProvider.GetRequiredService<CreateProductOperation>();
             //createProductOperation1.Handle(productCommand1, default).GetAwaiter().GetResult();
             await mediator.Send(productCommand1, cancellationToken);
-
             var purchaseProductCommand = new PurchaseProductCommand()
             {
-                IbanCode = "ROING66434848993",
-                UniqueIdentifier = "2950603567835",
+                IbanCode = iban2,
+                UniqueIdentifier = cnp,
                 ProductDetails = new System.Collections.Generic.List<PurchaseProductDetail>
             {
-            new PurchaseProductDetail { ProductId =productCommand.ProductId , Quantity = 2 },
-            new PurchaseProductDetail { ProductId = productCommand1.ProductId, Quantity = 6 }
+            new PurchaseProductDetail { ProductId = produs1.ProductId, Quantity = 2 }
             },
             };
             // var purchaseProductOperation = serviceProvider.GetRequiredService<PurchaseProductOperation>();
@@ -176,7 +184,7 @@ namespace PaymentGateway
 
             var query = new ListOfAccounts.Query
             {
-                PersonId = 1
+                Cnp = cnp
             };
 
             //var handler = serviceProvider.GetRequiredService<ListOfAccounts.QueryHandler>();
