@@ -42,7 +42,6 @@ namespace PaymentGateway.Application.Commands
             }
             
             
-
             var transaction = new Transaction
             {
                 Currency = request.Currency,

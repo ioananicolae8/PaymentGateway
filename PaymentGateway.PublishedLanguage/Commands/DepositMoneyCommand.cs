@@ -14,7 +14,6 @@ namespace PaymentGateway.PublishedLanguage.Commands
         public string UniqueIdentifier { get; set; }
         public int? PersonId { get; set; }
         public string Currency { get; set; }
-
         public DateTime DateOfTransaction { get; set; }
         public DateTime DateOfOperation { get; set; }
     

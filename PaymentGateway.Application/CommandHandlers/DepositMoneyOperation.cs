@@ -43,7 +43,6 @@ namespace PaymentGateway.Application.Commands
                 throw new Exception("Account not found!");
             }
             
-
             
             Transaction transaction = new Transaction
             {
